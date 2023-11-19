@@ -1,0 +1,30 @@
+
+</head>
+<body>
+    <button id="generateButton">Generate Script</button>
+    <div id="loadingAnimation" class="hidden">
+        <span id="dots">...</span>
+        <p>Generating script...</p>
+    </div>
+    <script>
+        const generateButton = document.getElementById("generateButton");
+        const loadingAnimation = document.getElementById("loadingAnimation");
+
+        generateButton.addEventListener("click", () => {
+            loadingAnimation.classList.toggle("hidden");
+            generateScript().then(() => {
+                loadingAnimation.classList.toggle("hidden");
+            });
+        });
+
+        function generateScript() {
+            // Simulate a script generation process here
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 3000); // Simulate a 3-second script generation
+            });
+        }
+    </script>
+</body>
+</html>

@@ -99,11 +99,7 @@
 
 
 .submit-celeb-btn{
-   position: absolute;
-   left: 50%;
-   top: 70%;
-   transform: translate(-50%);
-   margin-top: 50px;
+
    background-color: #b31777;
    width: 200px;
    height: 45px;
@@ -171,3 +167,27 @@
     transform: translate(-50%);
     margin-top: 230px;
   }
+
+
+
+  .buttonandspinner{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 40px;
+  }
+
+
+  .buttonandspinner * {
+    margin-left: 15px;
+  }
+
+
+
+
+  #button-pressed{
+    display: none;
+    
+  }
+

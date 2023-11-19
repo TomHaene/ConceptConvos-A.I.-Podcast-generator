@@ -67,11 +67,25 @@
                 </div>
 
             </div>
-            <button type="submit" class="submit-celeb-btn" id="submit-celeb-btn"> Generate conversation</button>
+
+            <div class="buttonandspinner">
+                <button type="submit" class="submit-celeb-btn" id="submit-celeb-btn"> Generate conversation</button>
+            
+                <div class="spinner-border text-light" id="button-pressed" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+
+            </div>
+     
 
         </form>
 
     </div>
+
+
+   
+
+
 
     <audio id="podcast-audio" controls>
         <source src="{{ url_for('static', filename='audio/combined_file.mp3') }}" type="audio/mpeg">
@@ -106,6 +120,14 @@
     <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
 
     <script>
+        const spinner = document.getElementById("button-pressed");
+        const button = document.getElementById("submit-celeb-btn");
+        button.addEventListener("click", () => {
+            spinner.style.display = 'block';
+
+    });
+
+
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         var audio = document.getElementById('podcast-audio');
 
@@ -115,7 +137,10 @@
         var total_files = 0;
         socket.on('total_files', function (data) {
             total_files = (data.message - 1) / 2;
+            spinner.style.display = 'none';
+
         })
+
 
         var files_iter = 0;
         socket.on('file_saved', function (data) {
@@ -170,23 +195,7 @@
             });
         });
 
-        var button = document.getElementById('submit-celeb-btn');
-        var body = document.body
-
-        button.addEventListener('click', function () {
-
-            //Add a alert to tell user button has sucessfully been pressed
-
-           
-
-
-        });
-
-
-
-
-
-
+       
         const names = document.getElementById('all-names').innerText;
 
         $('#name-inputA, #name-inputB').on('input', function () {

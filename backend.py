@@ -8,6 +8,7 @@ import re
 from moviepy.editor import concatenate_audioclips, AudioFileClip
 from mouth_images import getPodcastBackgrounds
 from pydub import AudioSegment
+from variables import api_key_stored
 
 
 app = Flask(__name__)
@@ -24,7 +25,7 @@ def index():
         "Kanye West",
         "Peter Griffin",
         "Lois Griffin",
-        "Arnold Schwarzenegger"
+        "Arnold Schwarzenegger",
     ]
     getPodcastBackgrounds("", "", "static/images/")
     socketio.emit("changed_images", {"message": 0})
@@ -63,7 +64,8 @@ def return_data():
                 "The conversation should be dynamic with both participants asking questions and elaborating on each other's answers. "
                 f"{name1} starts the conversation, and then they take turns speaking. "
                 "The conversation should reflect natural speech patterns including. the conversation should also really demonstrate their own unique personalities and what they would really say "
-                "appropriate rate, volume, pitch, articulation, pronunciation, and fluency as well. Don't be afaird to include humor in the conversation as well. Don't make the conversation to linear, there can be disagreements and interjections"
+                "appropriate rate, volume, pitch, articulation, pronunciation, and fluency as well."
+                "Also you there must be some element of humor, and one of both of the characters should laugh"
             )
 
             total_script = ""
@@ -217,7 +219,8 @@ def return_data():
         #         pygame.time.Clock().tick(10)  # Check every 10ms
 
         # Example usage
-        api_key = None
+        # old_api_key = "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"
+        api_key = api_key_stored
         characters = f"{name1} and {name2}"
         intro = user_chosen_topic
         conversation_topics = user_chosen_topic
