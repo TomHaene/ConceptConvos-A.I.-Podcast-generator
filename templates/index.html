@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+    <script src="{{url_for('static', filename='css/script.css') }}"></script>
+
+
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- If we wanted to add a JS file, we'd use the same syntax, just replace the filename with 'js/___.js' -->
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <style>
+        body {
+            /* background-image: url(/static/images/podcast_backdrop.avif); */
+            height: 190vh;
+            background-color: #000115;
+            color: white;
+
+
+        }
+    </style>
+    <div class="nav">
+
+    </div>
+    <div class="title">
+        <h1> Concept Convos </h1>
+        <h5>Choose your speakers in the drop-downs below and then chose a conversation topic for them.</h5>
+    </div>
+    <div class="how-this-works">
+    </div>
+
+    <div class="celeb-input-container">
+        <form method="POST">
+            <div class="flex-container">
+                <div class="celeb_a">
+                    <h2>Celeb A</h2>
+                    <div class="dropdown">
+                        <input type="text" autocomplete="off" id="name-inputA" name="celebA">
+                    </div>
+                </div>
+
+                <input type="text" placeholder="Eg: Talk about McGill University" class="conversation-topic"
+                    autocomplete="off" name="topic-input">
+
+                <div class="celeb_b">
+                    <h2>Celeb B</h2>
+                    <div class="dropdown">
+                        <input type="text" autocomplete='off' id="name-inputB" name="celebB">
+                    </div>
+                </div>
+
+            </div>
+            <button type="submit" class="submit-celeb-btn" id="submit-celeb-btn"> Generate conversation</button>
+
+        </form>
+
+    </div>
+
+    <audio id="podcast-audio" controls>
+        <source src="{{ url_for('static', filename='audio/combined_file.mp3') }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+
+
+    <div class="progress m-5" style="height: 30px; border-radius: 20px; font-size: 3rem;">
+        <div class="progress-bar" data-width="0"></div>
+    </div>
+
+    <img src="../static/images/no_talk.png" alt="" class="podcast-image" id="podcast-image">
+
+    <span id="all-names"> {{ names }}</span>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+
+    <!-- jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var audio = document.getElementById('podcast-audio');
+
+        var image = document.getElementById('podcast-image')
+        var imageUrlBase = "/static/images/no_talk.png";
+
+        var total_files = 0;
+        socket.on('total_files', function (data) {
+            total_files = (data.message - 1) / 2;
+        })
+
+        var files_iter = 0;
+        socket.on('file_saved', function (data) {
+            files_iter = data.message / 2;
+            updateProgressBar(files_iter, total_files);
+        });
+
+        socket.on('changed_images', function (data) {
+            image.src = imageUrlBase + "?timestamp=" + new Date().getTime();
+        });
+
+        socket.on('audio_done', function (data) {
+            audio.src = "/static/audio/combined_file.mp3?timestamp=" + new Date().getTime();
+            audio.style.display = 'block';
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        });
+
+
+        function updateProgressBar(cur_files, total_files) {
+            var progress = ((cur_files / total_files) * 100).toFixed(0);
+
+            var w_tar = $('.progress').find('.progress-bar');
+
+            if (progress >= 100) {
+                progress = 100; // Cap the progress at 100%
+
+            }
+
+            w_tar
+                .css('width', progress + "%")
+                .data('width', progress)
+                .text(progress + "%");
+        }
+
+
+        $(document).ready(function () {
+            $('form').on('submit', function (event) {
+                event.preventDefault(); // Prevents the default form submission
+                $.ajax({
+                    type: 'POST',
+                    url: '/topic', // Replace with your server endpoint
+                    data: $(this).serialize(), // Serializes form data for submission
+                    success: function (response) {
+                        // Handle success. For example, update the UI or display a message
+                        console.log('Response from server:', response);
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle errors
+                        console.log('An error occurred:', error);
+                    }
+                });
+            });
+        });
+
+        var button = document.getElementById('submit-celeb-btn');
+        var body = document.body
+
+        button.addEventListener('click', function () {
+
+            //Add a alert to tell user button has sucessfully been pressed
+
+           
+
+
+        });
+
+
+
+
+
+
+        const names = document.getElementById('all-names').innerText;
+
+        $('#name-inputA, #name-inputB').on('input', function () {
+            let value1 = $('#name-inputA').val();
+            let value2 = $('#name-inputB').val();
+            console.log("ON CHANGE")
+
+            $.ajax({
+                url: '/changed', // Replace with your actual URL
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ celebA: value1, celebB: value2 }),
+                success: function (response) {
+                    console.log('Success:', response);
+                    // Handle success here
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                    // Handle errors here
+                }
+            });
+        });
+
+
+        $(function () {
+
+            const Names = names.replace(/[\[\]']/g, '').split(',').map(name => name.trim());
+            console.log("Parsed names array:", Names);
+
+
+
+            $("#name-inputA").autocomplete({
+                source: function (request, response) {
+                    const term = request.term.toLowerCase();
+                    const suggestions = Names.filter(name =>
+                        name.toLowerCase().startsWith(term) // Filter names that start with the input term
+                    );
+                    const visibleSuggestions = suggestions.slice(0, 10); // Adjust the number of visible suggestions as needed
+                    response(visibleSuggestions);
+                },
+                minLength: 0,
+                maxResults: 5
+            }).autocomplete("widget").addClass("overflow-auto");
+
+
+            $("#name-inputA").on("click", function () {
+                $(this).autocomplete("search");
+            });
+
+
+
+
+            $("#name-inputB").autocomplete({
+                source: function (request, response) {
+                    const term = request.term.toLowerCase();
+                    const suggestions = Names.filter(name =>
+                        name.toLowerCase().startsWith(term) // Filter names that start with the input term
+                    );
+                    const visibleSuggestions = suggestions.slice(0, 10); // Adjust the number of visible suggestions as needed
+                    response(visibleSuggestions);
+                },
+                minLength: 0,
+                maxResults: 5
+            }).autocomplete("widget").addClass("overflow-auto");
+
+
+            $("#name-inputB").on("click", function () {
+                $(this).autocomplete("search");
+            });
+        });
+
+    </script>
+
+
+</body>
+
+</html>
