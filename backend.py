@@ -217,7 +217,7 @@ def return_data():
         #         pygame.time.Clock().tick(10)  # Check every 10ms
 
         # Example usage
-        api_key = "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"
+        api_key = None
         characters = f"{name1} and {name2}"
         intro = user_chosen_topic
         conversation_topics = user_chosen_topic
