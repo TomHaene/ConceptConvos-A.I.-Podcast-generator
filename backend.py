@@ -8,7 +8,7 @@ import re
 from moviepy.editor import concatenate_audioclips, AudioFileClip
 from mouth_images import getPodcastBackgrounds
 from pydub import AudioSegment
-from variables import api_key_stored
+from variables import api_key_stored, user_id, authorization
 
 
 app = Flask(__name__)
@@ -127,8 +127,8 @@ def return_data():
                 "voice_engine": "PlayHT2.0",
             }
             headers = {
-                "AUTHORIZATION": "278485edc78846328dd3dd883d5e1edb",
-                "X-USER-ID": "TtmGFJ2K5NX4xgEd7bprs7XDrZ33",
+                "AUTHORIZATION": authorization,
+                "X-USER-ID": user_id,
                 "accept": "text/event-stream",
                 "content-type": "application/json",
                 "Content-Location": "/celeb_audio",
